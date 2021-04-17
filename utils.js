@@ -49,11 +49,12 @@ const withdrawMoney = (id, { withdraw }) => {
   const users = loadUsers();
   let user = getUser(id);
   let withdrawInt = parseInt(withdraw);
-  // console.log(withdrawInt);
-  // console.log(user.cash);
-  user.cash = user.cash - withdrawInt;
 
-  //  console.log(user);
+  if ((user.cash-withdrawInt) < parseInt(user.credit)) throw new Error("The withdraw is not possible. the cash and credit run out.");
+
+  // console.log(withdrawInt);
+  user.cash = user.cash - withdrawInt;
+    console.log( user.cash);
   saveUsers(users);
 };
 
