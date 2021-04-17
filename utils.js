@@ -4,11 +4,21 @@ const getAllUsers = () => {
   const users = loadUsers();
   return users;
 };
+
 const getUser = (id) => {
   const users = loadUsers();
   const user = users.find((user) => user.id === id);
-  if (user) return user;
-  throw new Error("user not found");
+  if (user && user.isActive) return user;
+  throw new Error("user not found or not active");
+};
+
+const getUserFilter = ({ amountFrom, amountLimit }) => {
+  const users = loadUsers();
+  const users = users.fiter(
+    (user) => user.cash > amountFrom && user.cash < amountLimit
+  );
+  if (users) return users;
+  throw new Error("no users match your search");
 };
 
 const addUser = (user) => {
@@ -20,16 +30,12 @@ const addUser = (user) => {
 const updateCredit = (id, { credit }) => {
   const users = loadUsers();
   let user = getUser(id);
-  //console.log(credit)
 
   if (parseInt(credit) < 0) throw new Error("only positive credit is allowed");
 
-  user = Object.assign(user, {
-    credit: credit,
-  });
+  user.credit = credit;
 
   saveUsers(users);
-  //console.log(user)
 };
 
 const depositeMoney = (id, { deposite }) => {
@@ -38,10 +44,8 @@ const depositeMoney = (id, { deposite }) => {
   let depositeInt = parseInt(deposite);
   let cashInt = parseInt(user.cash);
 
-  // console.log(deposite);
-  user = Object.assign(user, { cash: cashInt + depositeInt });
+  user.cash = cashInt + depositeInt;
 
-  // console.log(user);
   saveUsers(users);
 };
 
@@ -50,16 +54,16 @@ const withdrawMoney = (id, { withdraw }) => {
   let user = getUser(id);
   let withdrawInt = parseInt(withdraw);
 
-  if ((user.cash-withdrawInt) < parseInt(user.credit)) throw new Error("The withdraw is not possible. the cash and credit run out.");
+  if (user.cash - withdrawInt < parseInt(user.credit))
+    throw new Error(
+      "The withdraw is not possible. the cash and credit run out."
+    );
 
-  // console.log(withdrawInt);
   user.cash = user.cash - withdrawInt;
-    console.log( user.cash);
   saveUsers(users);
 };
 
 const transferMoney = (id_send, { id_receive, transfer }) => {
-  // console.log("transferMoney")
   const users = loadUsers();
   let user1 = getUser(id_send);
   let user2 = getUser(id_receive);
@@ -67,21 +71,21 @@ const transferMoney = (id_send, { id_receive, transfer }) => {
   let cash2 = parseInt(user2.cash);
   let transferInt = parseInt(transfer);
 
-  if ((cash1-transferInt) < parseInt(user1.credit)) throw new Error("The transer is not possible. the cash and credit run out.");
+  if (cash1 - transferInt < parseInt(user1.credit))
+    throw new Error(
+      "The transer is not possible. the cash and credit run out."
+    );
 
   console.log(user1, user2);
 
   user1.cash = cash1 - transferInt;
   user2.cash = cash2 + transferInt;
 
-  //console.log(user1, user2);
   saveUsers(users);
 };
 
 function saveUsers(users) {
-  //   console.log(users)
   const dataJSON = JSON.stringify(users);
-  //  console.log(dataJSON)
 
   fs.writeFileSync("users.json", dataJSON);
   console.log("users saved");

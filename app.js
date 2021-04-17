@@ -67,8 +67,7 @@ app.put("/api/withdraw/:id", (req, res) => {
 });
 
 app.put("/api/transfer/:id", (req, res) => {
-  //console.log(req.body)
-  //console.log("transfer")
+
   try {
     transferMoney(req.params.id, req.body);
     res.status(201).send("success");
@@ -77,14 +76,6 @@ app.put("/api/transfer/:id", (req, res) => {
   }
 });
 
-// app.delete("/api/usres/:id", (req, res) => {
-// 	try {
-// 		deleteMovie(req.params.id);
-// 		res.status(201).send("movie deleted");
-// 	} catch (e) {
-// 		res.status(400).send({ error: e.message });
-// 	}
-// });
 
 const PORT = 3000;
 app.listen(PORT, () => {
